@@ -7,23 +7,63 @@
   <title></title>
   <link rel="stylesheet" href="">
 </head>
+<style>
+  * {
+    position: relative;
+    margin: 0;
+    padding: 0;
+
+  }
+
+  .wrap {
+    width: 0px;
+    height: 0px;
+    overflow: hidden;
+    float: left;
+    border: 1px solid black;
+    display: none;
+  }
+
+  .content {
+    width: 100px;
+    height: 100px;
+    background: gray;
+    opacity: 0.5;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 100;
+  }
+
+  .content:hover {
+    cursor: pointer;
+  }
+</style>
 
 <body>
+
+
+  <div class="wrap">
+    <div class="content"></div>
+    <img src="" id="showImg">
+  </div>
   <input type="file" class="file" name="imgfile" id="imgfile" placeholder="请选择文件">
-  <img src="" id="showImg">
-  <canvas id="myCanvas" width="500" height="300" style="border:1px solid #d3d3d3;">
-    您的浏览器不支持 HTML5 canvas 标签。
-  </canvas>
+  <button onclick="btn()">截图</button>
+  <canvas id="myCanvas" width="100" height="100" style="border:1px solid #d3d3d3;"></canvas>
   <img src="" alt="" id="img">
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript"></script>
+
+  <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
   <script>
     var c = document.getElementById("myCanvas");
     var ctx = c.getContext("2d");
-
-
-
-
     var input = document.getElementById("imgfile");
+    let flag = false;
+    var width = "";
+    var height = "";
+    var nowx = "";
+    var nowy = "";
+    let base64Code = "";
+
     //检测浏览器是否支持FileReader
     if (typeof (FileReader) === 'undefined') {
       result.innerHTML = "抱歉，你的浏览器不支持 FileReader，请使用现代浏览器操作！";
@@ -35,7 +75,6 @@
 
     function readFile() {
       var file = this.files[0];
-      console.log(this.files[0])
       //限定上传文件的类型，判断是否是图片类型
       if (!/image\/\w+/.test(file.type)) {
         alert("只能选择图片");
@@ -44,24 +83,97 @@
       var reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = function (e) {
-
         base64Code = this.result;
         //把得到的base64赋值到img标签显示
         $("#showImg").attr("src", base64Code);
         var img = new Image();
         img.src = base64Code;
-        img.setAttribute("crossOrigin", '*');
+        width = img.width;
+        height = img.height;
+        $(".wrap").css({
+          width: `${img.width}px`,
+          height: `${img.height}px`
+        })
+        //  img.setAttribute("crossOrigin", '*');
         img.onload = function () {
+          $(".wrap").show();
+          drag(".content", img.width, img.height);
+          c.width = img.width;
+          c.height = img.height;
        
-      
-          ctx.drawImage(img, 0, 0, 50, 50, 0, 0, 50, 50);
-          console.log(c.toDataURL())
-document.getElementById("img").src= c.toDataURL();
+          // document.getElementById("img").src = c.toDataURL();
         }
-
-
       }
     }
+
+    function btn() {
+      var img = new Image();
+      img.src = base64Code;
+      img.onload = function () {
+       ctx.drawImage(img, nowx, nowy, 100, 100, 0, 0, 100, 100);
+      }
+    };
+      function drag(name, posx, posy) {
+        $(name).on("mousedown", function (e) {
+          console.log("down")
+          nowx = 0;
+          nowy = 0;
+          flag = true;
+          var x = $(name).position().left;
+          var y = $(name).position().top;
+          let ex = e.clientX;
+          let ey = e.clientY;
+          $(document).on("mousemove", function (event) {
+
+            var movex = event.clientX - ex + x;
+            var movey = event.clientY - ey + y;
+            nowx = movex < 0 ? 0 : movex > posx - 100 ? posx - 100 : movex;
+            nowy = movey < 0 ? 0 : movey > posy - 100 ? posy - 100 : movey;
+
+            if (flag) {
+              $(name).css({
+                top: nowy + "px",
+                left: nowx + "px"
+              })
+
+            }
+            $(document).on("mouseup",
+              function () {
+                flag = false;
+                $(document).off("mousemove")
+              })
+          })
+
+        })
+
+      }
+
+
+
+      // p3.ondragstart = function (e) {
+      //   console.log('事件源p3开始拖动');
+      //   //记录刚一拖动时，鼠标在飞机上的偏移量
+      //   offsetX = e.offsetX;
+      //   offsetY = e.offsetY;
+      // }
+      // p3.ondrag = function (e) {
+      //   console.log('事件源p3拖动中');
+      //   var x = e.pageX;
+      //   var y = e.pageY;
+      //   console.log(x + '-' + y);
+      //   //drag事件最后一刻，无法读取鼠标的坐标，pageX和pageY都变为0
+      //   if (x == 0 && y == 0) {
+      //     return; //不处理拖动最后一刻X和Y都为0的情形
+      //   }
+      //   x -= offsetX;
+      //   y -= offsetY;
+
+      //   p3.style.left = x + 'px';
+      //   p3.style.top = y + 'px';
+      // }
+      // p3.ondragend = function () {
+      //   console.log('源对象p3拖动结束');
+      // }
   </script>
 
 
