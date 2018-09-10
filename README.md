@@ -23,8 +23,10 @@ BrowserRouter 4.0版本不支持history的参数。路由跳转需要使用 Hash
  this.props.history.push("/a/"+123123); //携带参数
  this.props.match.params.id             //输出参数
  this.props.history.push({              //隐式携带参数
-          pathname:"/b",
-          state:{ name:"yjk" }
-       })
+        
+        pathname:"/b",
+        state:{ name:"yjk" }
+      
+      })
  this.props.history.location.state     //输出参数  {name:"yjk"}
 ```
