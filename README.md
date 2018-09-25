@@ -30,3 +30,5 @@ BrowserRouter 4.0版本不支持history的参数。路由跳转需要使用 Hash
       })
  this.props.history.location.state     //输出参数  {name:"yjk"}
 ```
+### 3. react 的原生事件
+e.nativeEvent
